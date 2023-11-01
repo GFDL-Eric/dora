@@ -1,8 +1,5 @@
 image: alpine:latest
 
-rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
-
 stages: 
   - generateconfig
   - run
@@ -11,6 +8,8 @@ variables:
   mode: "standard-test"
 
 generate-config:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
   image: python:withyaml
   stage: generateconfig
   script: chmod 744 generate-ci-config.py && python generate-ci-config.py
@@ -21,6 +20,8 @@ generate-config:
       - generated-config.yml
 
 generated-pipeline:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
   stage: run
   trigger:
     include:
