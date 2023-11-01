@@ -1,5 +1,8 @@
 image: alpine:latest
 
+rules:
+  - if: '$CI_COMMIT_BRANCH == "main"'
+
 stages: 
   - generateconfig
   - run
