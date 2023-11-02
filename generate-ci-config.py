@@ -39,8 +39,8 @@ def build_script(action, in_pipe, in_full):
         case "full":
           build_before_statement = make_before_statement('build', 'webapp and database application')
           build_after_statement = make_after_statement('built on', 'webapp and database application')
-          build_statement = ['run -d --name mytmpsource -v baksql:/source -w /source alpine ls']
-          build_statement += ['cp mytmpsource:/source/backup.sql /builds/john.krasting/dora/mariadb/']
+          build_statement = ['docker run -d --name mytmpsource -v baksql:/source -w /source alpine ls']
+          build_statement += ['docker cp mytmpsource:/source/backup.sql /builds/john.krasting/dora/mariadb/']
           build_statement += ['docker stop mytmpsource']
           build_statement += ['docker rm mytmpsource']
           build_statement += [f'{dockerprefix} build']
