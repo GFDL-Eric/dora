@@ -99,18 +99,18 @@ services:
         read_only: true
         bind:
             propagation: shared      
-      - type: bind
-        source: /arch9
-        target: /arch9
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /archa
-        target: /archa
-        read_only: true
-        bind:
-            propagation: shared      
+            #      - type: bind
+            #        source: /arch9
+            #        target: /arch9
+            #        read_only: true
+            #        bind:
+            #            propagation: shared      
+            #      - type: bind
+            #        source: /archa
+            #        target: /archa
+            #        read_only: true
+            #        bind:
+            #            propagation: shared      
       - type: bind
         source: /archb
         target: /archb
@@ -123,18 +123,18 @@ services:
         read_only: true
         bind:
             propagation: shared      
-      - type: bind
-        source: /archd
-        target: /archd
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arche
-        target: /arche
-        read_only: true
-        bind:
-            propagation: shared      
+            #      - type: bind
+            #        source: /archd
+            #        target: /archd
+            #        read_only: true
+            #        bind:
+            #            propagation: shared      
+            #      - type: bind
+            #        source: /arche
+            #        target: /arche
+            #        read_only: true
+            #        bind:
+            #            propagation: shared      
     ports:
       - "5050:5050"
     networks:
