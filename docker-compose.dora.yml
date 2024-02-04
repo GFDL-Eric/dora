@@ -30,15 +30,15 @@ services:
     env_file: .env
     build: .
     hostname: "dashboard"
-    volumes:
-      - /gfdlhome:/home:ro
-      - /nbhome:/nbhome:ro
-      - type: bind
-        source: /archive
-        target: /archive
-        read_only: true
-        bind:
-            propagation: slave      
+    #volumes:
+      #- /gfdlhome:/home:ro
+      #- /nbhome:/nbhome:ro
+      #- type: bind
+      #  source: /archive
+      #  target: /archive
+      #  read_only: true
+      #  bind:
+      #      propagation: slave      
     ports:
       - "5050:5050"
     networks:

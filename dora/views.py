@@ -42,6 +42,7 @@ from dora.user import User
 from .xml import parse_xml
 
 from .om4 import *
+from .mar import *
 from .diffmaps import *
 from .auth import *
 from .api import *

@@ -24,4 +24,7 @@ EXPOSE 5050
 COPY dora dora
 COPY .env .env
 
+# Download Model Analysis Repository (MAR)
+RUN git clone https://github.com/jkrasting/mar.git
+
 CMD ["/bin/bash", "gunicorn/gunicorn-run.sh"]
