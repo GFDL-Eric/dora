@@ -76,17 +76,36 @@ def mar_execute():
     experiment = Experiment(idnum)
  
     # Make sure the experiment is valid
-    # if experiment.validate_path("pathPP") is False:
-    #    return render_template(
-    #        "page-500.html", msg=f"Unable to reach {experiment.pathPP}."
-    #    )
+    if experiment.validate_path("pathPP") is False:
+       return render_template(
+           "page-500.html", msg=f"Unable to reach {experiment.pathPP}."
+       )
+
+    # Get the requested analysis from the URL or provide user with
+    # a menu of available diagnostics in MAR
+    analysis = request.args.getlist("analysis")
+    if analysis == []:
+
+        year_range = experiment.year_range()
+        avail_diags = glob.glob("/mar/**/*.ipynb", recursive=True)
+
+        return render_template(
+            "mar-start.html",
+            avail_diags=avail_diags,
+            idnum=idnum,
+            experiment=experiment,
+            year_range=year_range,
+        )
 
     # Set parameter vars
-    os.environ["DORA_PATHPP"] = experiment.pathPP
-    os.environ["DORA_ID"] = idnum
+    os.environ["MAR_PATHPP"] = experiment.pathPP
+    os.environ["MAR_DORA_ID"] = idnum
+    os.environ["MAR_STARTYR"] = str(request.args.get("startyr"))
+    os.environ["MAR_ENDYR"] = str(request.args.get("endyr"))
+    os.environ["DORA_EXECUTE"] = "1"
 
     # Load the notebook
-    notebook_filename = '/mar/basic_notebook.ipynb'
+    notebook_filename = analysis[0]
     with open(notebook_filename, 'r', encoding='utf-8') as f:
         nb = nbformat.read(f, as_version=4)
     
@@ -107,10 +126,6 @@ def mar_execute():
                             image = output["data"]["image/png"]
                             images.append(image)
     
-    # for image in images:
-    #    image_bytes = base64.b64decode(image)
-    #    display(Image(data=image_bytes))
-    
     return render_template("mar-results.html", images=images)
 
 
@@ -123,34 +138,6 @@ def update_mar():
 
 
 
-##     # Get the requested analysis from the URL or provide user with
-##     # a menu of available diagnostics in OM4Labs
-##     analysis = request.args.getlist("analysis")
-##     if analysis == []:
-##         year_range = experiment.year_range()
-##         avail_diags = [x for x in dir(om4labs.diags) if not x.startswith("__")]
-##         exclude = ["avail", "generic"]
-##         avail_diags = [x for x in avail_diags if not any(diag in x for diag in exclude)]
-##         avail_diags = [
-##             (diag, eval(f"om4labs.diags.{diag}.__description__"))
-##             for diag in avail_diags
-##         ]
-##         moc_diags = [x for x in avail_diags if x[0] == "moc"]
-##         avail_diags = [x for x in avail_diags if x[0] != "moc"]
-##         moc_diags = [
-##             (moc_diags[0][0] + "_rho", moc_diags[0][1]),
-##             (moc_diags[0][0] + "_z", moc_diags[0][1]),
-##         ]
-## 
-##         avail_diags = sorted(avail_diags + moc_diags)
-## 
-##         return render_template(
-##             "om4labs-start.html",
-##             avail_diags=avail_diags,
-##             idnum=idnum,
-##             experiment=experiment,
-##             year_range=year_range,
-##         )
 ## 
 ##     # get the start and end years for the analysis
 ##     # (rely on browser to make sure user enters values)
