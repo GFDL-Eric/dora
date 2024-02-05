@@ -91,9 +91,12 @@ def mar_execute():
         nb = nbformat.read(f, as_version=4)
     
     # Execute the notebook
-    executor = CaptureFigurePreprocessor(timeout=600, kernel_name='python3')
-    res = executor.preprocess(nb, {'metadata': {'path': './'}})
-    
+    try:
+        executor = CaptureFigurePreprocessor(timeout=600, kernel_name='python3')
+        res = executor.preprocess(nb, {'metadata': {'path': '/'}})
+    except Exception as exc:
+        return render_template("page-500.html", msg=f"{exc}")
+
     images = []
     for cell in res[0]["cells"]:
         if cell["cell_type"] == "code":
