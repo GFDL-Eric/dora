@@ -14,7 +14,7 @@ generate-config:
   stage: generateconfig
   script: chmod 744 generate-ci-config.py && python generate-ci-config.py
   tags:
-    - dpdev
+    - dora
   artifacts:
     paths:
       - generated-config.yml

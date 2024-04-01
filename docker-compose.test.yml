@@ -1,20 +1,22 @@
 version: '3.2'
 
 services:
-  mariadb:
+  mariadbtest:
     restart: always
     env_file: .dbenv
-    image: mariadb
+    build:
+      context: mariadb
+      dockerfile: Dockerfile.test
     hostname: "dbserver"
-    volumes:
-      - baksql:/docker-entrypoint-initdb.d
+    ports:
+      - "3307:3306"
     expose:
-      - "3306"
+      - "3307"
     networks:
-      - db_network
-  phpmyadmin:
+      - test_network
+  phpmyadmintest:
     image: phpmyadmin
-    container_name: phpmyadmin
+    container_name: phpmyadmintest
     environment:
      - PMA_ARBITRARY=1
     ports:
@@ -22,129 +24,32 @@ services:
     volumes:
      - /sessions
     networks:
-      - db_network
+      - test_network
     depends_on: 
-      - mariadb
-  webapp:
+      - mariadbtest
+  webapptest:
     restart: always
     env_file: .env
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     hostname: "dashboard"
     volumes:
       - /gfdlhome:/home:ro
       - /nbhome:/nbhome:ro
       - type: bind
-        source: /etc/httpd/conf.d
-        target: /etc/certificates
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
         source: /archive
         target: /archive
         read_only: true
         bind:
-            propagation: shared      
-      - type: bind
-        source: /arch0
-        target: /arch0
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arch1
-        target: /arch1
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arch2
-        target: /arch2
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arch3
-        target: /arch3
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arch4
-        target: /arch4
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arch5
-        target: /arch5
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arch6
-        target: /arch6
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arch7
-        target: /arch7
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /arch8
-        target: /arch8
-        read_only: true
-        bind:
-            propagation: shared      
-            #      - type: bind
-            #        source: /arch9
-            #        target: /arch9
-            #        read_only: true
-            #        bind:
-            #            propagation: shared      
-            #      - type: bind
-            #        source: /archa
-            #        target: /archa
-            #        read_only: true
-            #        bind:
-            #            propagation: shared      
-      - type: bind
-        source: /archb
-        target: /archb
-        read_only: true
-        bind:
-            propagation: shared      
-      - type: bind
-        source: /archc
-        target: /archc
-        read_only: true
-        bind:
-            propagation: shared      
-            #      - type: bind
-            #        source: /archd
-            #        target: /archd
-            #        read_only: true
-            #        bind:
-            #            propagation: shared      
-            #      - type: bind
-            #        source: /arche
-            #        target: /arche
-            #        read_only: true
-            #        bind:
-            #            propagation: shared      
+            propagation: slave      
     ports:
-      - "5050:5050"
+      - "5600:5050"
     networks:
-      - db_network
+      - test_network
     depends_on: 
-      - mariadb
+      - mariadbtest
 
-volumes:
-  baksql:
-    external: true
 networks:
-  db_network:
+  test_network:
     driver: bridge
