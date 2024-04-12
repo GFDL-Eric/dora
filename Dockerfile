@@ -1,18 +1,10 @@
 # Base Docker Container for Dora
 # ==============================
 
-FROM continuumio/miniconda3:master-alpine
+FROM condaforge/miniforge3
 
-# Update OS packages
-RUN apk update \
-  && apk add --no-cache git \
-  && apk add --no-cache bash \
-  && apk add --no-cache mysql-client
-
-# Update conda channels and install mamba
-RUN conda config --add channels conda-forge \
-  && conda config --add channels krasting \
-  && conda install -y mamba
+# # Update OS packages
+RUN apt update && apt install -y git bash mysql-client
 
 # Create the environment:
 COPY envs envs
