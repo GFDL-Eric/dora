@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS mdt_tracker;
 
-GRANT ALL PRIVILEGES ON mdt_tracker.* to 'mdtadmin'@'172.19.%.%' IDENTIFIED BY 'adminpassword' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON mdt_tracker.* to 'mdtadmin'@'10.89.%.%' IDENTIFIED BY 'adminpassword' WITH GRANT OPTION;
 
 USE mdt_tracker;
 

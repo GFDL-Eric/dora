@@ -1,4 +1,4 @@
-MYSQL_ROOT_PASSWORD=rootpassword
-MYSQL_DATABASE=mdt_tracker
-MYSQL_USER=mdtadmin
-MYSQL_PASSWORD=adminpassword
+MARIADB_ROOT_PASSWORD=rootpassword
+MARIADB_DATABASE=mdt_tracker
+MARIADB_USER=mdtadmin
+MARIADB_PASSWORD=adminpassword
