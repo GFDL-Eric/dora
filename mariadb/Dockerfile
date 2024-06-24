@@ -1,4 +1,4 @@
-FROM mariadb:latest
+FROM docker.io/library/mariadb:latest
 
 ENV MYSQL_ROOT_PASSWORD rootpassword
 ENV MYSQL_DATABASE mdt_tracker

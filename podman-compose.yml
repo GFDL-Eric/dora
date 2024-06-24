@@ -1,0 +1,65 @@
+version: '3.2'
+
+services:
+  mariadb:
+    hostname: "dbserver"
+    image: localhost/mariadb:latest
+    container_name: dora-mariadb
+    restart: always
+    env_file: .dbenv
+    build:
+      context: mariadb
+      dockerfile: Dockerfile.reload
+    volumes:
+      - ./mariadb/data:/var/lib/mysql:z
+      - ./mariadb/init:/docker-entrypoint-initdb.d:z,ro
+    ports:
+      - '3306:3306'
+    networks:
+      - default
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: dora-phpmyadmin
+    restart: !!str no
+    env_file:
+      - envs/phpmyadmin.env
+    ports:
+      - '8080:80'
+    networks:
+      - default
+      - public
+    depends_on: 
+      - mariadb
+  webapp:
+    hostname: "dashboard"
+    image: localhost/webapp:latest
+    container_name: dora-webapp
+    restart: always
+    env_file:
+      - .env
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - /gfdlhome:/home:ro
+      - /nbhome:/nbhome:ro
+      - type: bind
+        source: /archive
+        target: /archive
+        read_only: true
+        bind:
+            propagation: slave      
+    ports:
+      - '5050:5050'
+    networks:
+      - default
+      - public
+    depends_on: 
+      - mariadb
+
+
+networks:
+  default:
+    internal: false
+  public:
+    internal: false

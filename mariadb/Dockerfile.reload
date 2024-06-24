@@ -1,11 +1,11 @@
-FROM mariadb:latest
-
-ENV MYSQL_ROOT_PASSWORD rootpassword
-ENV MYSQL_DATABASE mdt_tracker
-ENV MYSQL_USER mdtadmin
-ENV MYSQL_PASSWORD adminpassword
+FROM mariadb:lts-ubi
 
 EXPOSE 3306
 
-COPY backup.sql /docker-entrypoint-initdb.d/backup.sql
-RUN chmod ugo+rx /docker-entrypoint-initdb.d/backup.sql
+LABEL version="1.0"
+LABEL description="MariaDB Server"
+
+HEALTHCHECK --start-period=5m \
+  CMD mariadb -e 'SELECT @@datadir;' || exit 1
+
+CMD ["mariadbd"]
