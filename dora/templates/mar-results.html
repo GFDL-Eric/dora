@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Blank Page {% endblock %}
+{% block title %} MAR Analysis Results {% endblock %}
 
 <!-- Element injected in the BODY element -->
 {% block body_class %} sidebar-mini pace-primary {% endblock body_class %}
@@ -41,6 +41,39 @@
 
     <!-- Main content -->
     <section class="content">
+
+        {% if infiles|length > 0 %}
+
+        <div class="callout callout-warning">
+
+            The following files are needed to perform this analysis. To speed up the the analysis,
+            or in the event of a server timeout, consider recalling these files first from tape:
+
+            <pre><p id="dmget">dmget {{infiles|join(" ")}}</p></pre>
+
+            <table>
+              <tr>
+                <td>
+                  <span title="Copy to Clipboard">
+                    <button class="btn btn-primary" onclick="copyToClipboard('#dmget')">
+                      <i class="fas fa-clipboard"></i>
+                    </button>
+                  </span>
+                </td>
+                <td>
+
+            <form method="analysis/mar" method="GET">
+                <input type="hidden" name="validated" value="True">
+                <button type="submit" class="btn btn-primary">Continue with Analysis</button>
+            </form>
+
+                </td>
+              </tr>
+            </table>
+        </div>
+        <!-- /.card -->
+
+        {% endif %}
 
         <!-- Default box -->
         <div class="card">
