@@ -1,29 +1,36 @@
-image: alpine:latest
-
 stages: 
-  - generateconfig
   - run
 
 variables:
-  mode: "standard-test"
+  GIT_CHECKOUT: "false"
+  GIT_STRATEGY: fetch
+  GIT_DEPTH: 0
+  dora_system: dora-dev
 
-generate-config:
+reset_dora:
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  image: python:withyaml
-  stage: generateconfig
-  script: chmod 744 generate-ci-config.py && python generate-ci-config.py
-  tags:
-    - dora
-  artifacts:
-    paths:
-      - generated-config.yml
-
-generated-pipeline:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$dora_system == "dora-dev" && $CI_PIPELINE_SOURCE == "web"'
+      variables:
+        id_google: ${google_id_env_ci}
+        secret_google: ${google_secret_env_ci}
+    - if: '$dora_system == "dora" && $CI_PIPELINE_SOURCE == "web"'
+      variables:
+        id_google: ${google_id_env_dora}
+        secret_google: ${google_secret_env_dora}
   stage: run
-  trigger:
-    include:
-      - artifact: generated-config.yml
-        job: generate-config
+  script:
+    - cd /home/podman/dora
+    - git checkout -- .env
+    - git fetch origin
+    - git checkout $CI_COMMIT_BRANCH
+    - git pull origin $CI_COMMIT_BRANCH
+    - sed -i 's/google_id_env_ci/'${id_google}'/' .env
+    - sed -i 's/google_secret_env_ci/'${secret_google}'/' .env
+    - podman-compose -f podman-compose.yml stop webapp
+    - podman rm dora-webapp
+    - podman-compose -f podman-compose.yml build webapp
+    - podman-compose -f podman-compose.yml up -d
+    - sleep 3
+    - podman ps -a
+  tags:
+    - ${dora_system}
