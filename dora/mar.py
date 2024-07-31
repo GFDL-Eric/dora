@@ -27,7 +27,36 @@ from .frepptools import Filegroup, in_daterange, optimize_filegroup_selection
 # the Jupyter notebook preprocessor
 os.environ["PYDEVD_DISABLE_FILE_VALIDATION"] = "1"
 
+import re
 
+
+# This function makes a nicer formatted error should a notebook fail
+def clean_exception_string(exception_str):
+    # Remove ANSI color codes
+    ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+    cleaned_str = ansi_escape.sub("", exception_str)
+
+    # Split the string into lines
+    lines = cleaned_str.split("\n")
+
+    # Remove the ASCII box around the code
+    if "-----------------" in lines:
+        start = lines.index("-----------------")
+        end = lines[start + 1 :].index("-----------------") + start + 1
+        code_lines = lines[start + 1 : end]
+        lines = lines[:start] + code_lines + lines[end + 1 :]
+
+    # Remove extra whitespace
+    lines = [line.strip() for line in lines if line.strip()]
+
+    # Join the lines back together
+    cleaned_str = "\n".join(lines)
+
+    return cleaned_str
+
+
+# Example usage:
+# cleaned_exception = clean_exception_string(your_exception_string)
 class CaptureFigurePreprocessor(ExecutePreprocessor):
     def __init__(self, envvars=None, *args, **kwargs):
         if envvars is not None:
@@ -153,7 +182,10 @@ def mar_execute():
             executor = CaptureFigurePreprocessor(timeout=600, kernel_name="python3")
             res = executor.preprocess(nb, {"metadata": {"path": "/"}})
         except Exception as exc:
-            return render_template("page-500.html", msg=f"{exc}")
+            exc = str(exc)
+            if "An error occurred while executing the following cell" in exc:
+                exc = clean_exception_string(exc)
+            return render_template("page-500-pre.html", msg=f"{exc}")
 
         images = []
         for cell in res[0]["cells"]:
