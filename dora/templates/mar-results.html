@@ -27,7 +27,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Blank Page</h1>
+                    {% if infiles|length > 0 %}
+                    <h1>Consider running dmget ...</h1>
+		    {% else %}
+                    <h1>MAR Results</h1>
+		    Experiment: {{idnum}}
+		    {% endif %}
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -49,7 +54,7 @@
             The following files are needed to perform this analysis. To speed up the the analysis,
             or in the event of a server timeout, consider recalling these files first from tape:
 
-            <pre><p id="dmget">dmget {{infiles|join(" ")}}</p></pre>
+            <pre style="white-space: pre-wrap;"><p id="dmget">dmget {{infiles|join(" ")}}</p></pre>
 
             <table>
               <tr>
@@ -63,6 +68,10 @@
                 <td>
 
             <form method="analysis/mar" method="GET">
+		<input type="hidden" name="id" value={{idnum}}>
+		<input type="hidden" name="analysis" value={{analysis}}>
+		<input type="hidden" name="startyr" value={{startyr}}>
+		<input type="hidden" name="endyr" value={{endyr}}>
                 <input type="hidden" name="validated" value="True">
                 <button type="submit" class="btn btn-primary">Continue with Analysis</button>
             </form>
@@ -73,12 +82,12 @@
         </div>
         <!-- /.card -->
 
-        {% endif %}
+        {% else %}
 
         <!-- Default box -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Title</h3>
+		    <h3 class="card-title">Analysis: {{analysis}}</h3>
 
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -96,11 +105,14 @@
             </div>
             <!-- /.card-body -->
             <div class="card-footer">
-                Footer
+                Disclaimer: These are experimental research products not intended for public distribution.
             </div>
             <!-- /.card-footer-->
         </div>
         <!-- /.card -->
+
+        {% endif %}
+
 
     </section>
     <!-- /.content -->
@@ -122,4 +134,15 @@
 <!-- AdminLTE for demo purposes -->
 <script src="/static/assets/js/demo.js"></script>
 
+<script>
+
+function copyToClipboard(element) {
+  var $temp = $("<input>");
+  $("body").append($temp);
+  $temp.val($(element).text().replace("\n","; ")).select();
+  document.execCommand("copy");
+  console.log($(element).text());
+  $temp.remove();
+}
+</script>
 {% endblock javascripts %}

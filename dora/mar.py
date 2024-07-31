@@ -109,11 +109,14 @@ def mar_execute():
             year_range=year_range,
         )
 
+    startyr = str(request.args.get("startyr"))
+    endyr = str(request.args.get("endyr"))
+
     # Set parameter vars
     os.environ["MAR_PATHPP"] = experiment.pathPP
     os.environ["MAR_DORA_ID"] = idnum
-    os.environ["MAR_STARTYR"] = str(request.args.get("startyr"))
-    os.environ["MAR_ENDYR"] = str(request.args.get("endyr"))
+    os.environ["MAR_STARTYR"] = startyr
+    os.environ["MAR_ENDYR"] = endyr
     os.environ["DORA_EXECUTE"] = "1"
 
     # Initialize an empty list for output images
@@ -126,6 +129,8 @@ def mar_execute():
 
     # See if the user acknowleged the need to pre-dmget the files
     validated = request.args.get("validated")
+
+    infiles = []
 
     # If the user has *not* validated the files, execute the notebook
     # enough in order to display a list of files that the user should
@@ -143,27 +148,32 @@ def mar_execute():
             files = files.replace("\n", " ")
             infiles = files.split(" ")
 
-    # executor = CaptureFigurePreprocessor(timeout=600, kernel_name="python3")
-    # res = executor.preprocess(nb, {"metadata": {"path": "/"}})
+    else:
+        try:
+            executor = CaptureFigurePreprocessor(timeout=600, kernel_name="python3")
+            res = executor.preprocess(nb, {"metadata": {"path": "/"}})
+        except Exception as exc:
+            return render_template("page-500.html", msg=f"{exc}")
 
-    # original code
-    # try:
-    #    executor = CaptureFigurePreprocessor(timeout=600, kernel_name="python3")
-    #    res = executor.preprocess(nb, {"metadata": {"path": "/"}})
-    # except Exception as exc:
-    #    return render_template("page-500.html", msg=f"{exc}")
+        images = []
+        for cell in res[0]["cells"]:
+            if cell["cell_type"] == "code":
+                if len(cell["outputs"]) > 0:
+                    for output in cell["outputs"]:
+                        if "data" in output.keys():
+                            if "image/png" in output["data"].keys():
+                                image = output["data"]["image/png"]
+                                images.append(image)
 
-    # images = []
-    # for cell in res[0]["cells"]:
-    #     if cell["cell_type"] == "code":
-    #         if len(cell["outputs"]) > 0:
-    #             for output in cell["outputs"]:
-    #                 if "data" in output.keys():
-    #                     if "image/png" in output["data"].keys():
-    #                         image = output["data"]["image/png"]
-    #                         images.append(image)
-
-    return render_template("mar-results.html", images=images, infiles=infiles)
+    return render_template(
+        "mar-results.html",
+        analysis=analysis[0],
+        idnum=idnum,
+        images=images,
+        infiles=infiles,
+        startyr=startyr,
+        endyr=endyr,
+    )
 
 
 @dora.route("/update-mar")
@@ -172,5 +182,3 @@ def update_mar():
     output = subprocess.check_output(cmd.split(" "))
     output = output.decode()
     return Response(output, mimetype="text/plain")
-
-
