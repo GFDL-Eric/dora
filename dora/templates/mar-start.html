@@ -91,9 +91,14 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fas fa-clock"></i></span>
                       </div>
-                      <input type="text" class="form-control" name="endyr" placeholder="End Year ({{year_range[1]}})" required>
+		      <input type="text" class="form-control" name="endyr" placeholder="End Year ({{year_range[1]}})" required><br>
                     </div>
-                    </div>
+                  </div>
+                  <br>
+		  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="validated" name="validated" value="True">
+                    <label class="form-check-label" for="validated">Skip dmget validation step</label>
+                  </div>
                 </div>
                 </div>
                 <p></p>
