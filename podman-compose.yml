@@ -60,6 +60,6 @@ services:
 
 networks:
   default:
-    internal: false
+    internal: true
   public:
     internal: false

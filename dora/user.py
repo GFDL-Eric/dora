@@ -60,6 +60,7 @@ class User(UserMixin):
         )
         perm_add = (
             [lookup_project_from_id(x) for x in user["perm_add"].split(",")]
+            + ["esm45", "cm5"]
             if user["perm_add"] is not None
             else []
         )
