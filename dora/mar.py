@@ -128,7 +128,13 @@ def mar_execute():
     if analysis == []:
 
         year_range = experiment.year_range()
-        avail_diags = glob.glob("/home/jpk/mar/**/*.ipynb", recursive=True)
+
+        # Determine where the MAR notebooks live
+        if "MAR_NB_ROOT" in os.environ.keys():
+            mar_nb_root = os.environ["MAR_NB_ROOT"]
+        else:
+            mar_nb_root = "/mar"
+        avail_diags = glob.glob(f"{mar_nb_root}/**/*.ipynb", recursive=True)
 
         return render_template(
             "mar-start.html",
