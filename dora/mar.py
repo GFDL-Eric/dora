@@ -19,6 +19,7 @@ from IPython.display import Image, display
 from nbconvert.preprocessors import ExecutePreprocessor
 
 from dora import dora
+from flask_login import current_user
 
 from .Experiment import Experiment
 from .frepptools import Filegroup, in_daterange, optimize_filegroup_selection
@@ -159,6 +160,13 @@ def mar_execute():
 
     # Load the notebook
     notebook_filename = analysis[0]
+
+    # User-specified notebook for testing purposes
+    if notebook_filename == "custom":
+        assert current_user.is_authenticated, "You must be logged in to run custom notebooks."
+        assert current_user.admin, "Administrator privileges are required to run custom notebooks."
+        notebook_filename = request.args.get("customPath")
+
     with open(notebook_filename, "r", encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)
 
