@@ -64,15 +64,22 @@
                         {% for diag in avail_diags %}
                         <div class="custom-control custom-radio">
                             <input class="custom-control-input" type="radio" id="analysis{{loop.index}}" name="analysis"
-                                   value="{{diag}}">
-			    <!-- with sublabel
-                            <label for="analysis{{loop.index}}" class="custom-control-label">{{diag}} <p
-                                    class="text-muted"><i>{{diag}}</i></p></label>
-		            -->
+                                   value="{{diag}}" checked="checked">
                             <label for="analysis{{loop.index}}" class="custom-control-label">{{diag}}</label>
 
                         </div>
                         {% endfor %}
+
+			{% if current_user.admin %}
+			<p>
+                        <div class="custom-control custom-radio">
+		          <input class="custom-control-input" type="radio" name="analysis" value="custom" id="customOption">
+			  <label for="customOption" class="custom-control-label">
+				  <input type="text" id="customPath" name="customPath" placeholder="Path to MAR-compatible Notebook" size=50 disabled>
+			  </label>
+			</div>
+			{% endif %}
+
                     </div>
                     <input type="hidden" name="id" value="{{idnum}}">
                 <div>
@@ -141,5 +148,25 @@
 <script src="/static/assets/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="/static/assets/js/demo.js"></script>
+
+<script>
+  // Get the radio button and text input
+  const customOption = document.getElementById('customOption');
+  const customPath = document.getElementById('customPath');
+  
+  // Add event listener to enable the text input when the custom option is selected
+  document.querySelectorAll('input[name="analysis"]').forEach((radio) => {
+      radio.addEventListener('change', function() {
+            if (customOption.checked) {
+                 customPath.disabled = false; // Enable the custom text input
+	         customPath.focus(); // Optional: Focus on the text input when enabled
+	    } else {
+	         customPath.disabled = true; // Disable the text input
+	         customPath.value = ''; // Clear the text input if another option is selected
+	    }
+      });
+  });
+</script>
+
 
 {% endblock javascripts %}
