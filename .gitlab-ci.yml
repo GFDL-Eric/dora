@@ -6,6 +6,7 @@ variables:
   GIT_STRATEGY: fetch
   GIT_DEPTH: 0
   dora_system: dora-dev
+  use_podman_cache: ""
 
 reset_dora:
   rules:
@@ -20,7 +21,6 @@ reset_dora:
   stage: run
   script:
     - cd /home/podman/dora
-    - git checkout -- .env
     - git fetch origin
     - git checkout $CI_COMMIT_BRANCH
     - git pull origin $CI_COMMIT_BRANCH
@@ -28,7 +28,7 @@ reset_dora:
     - sed -i 's/google_secret_env_ci/'${secret_google}'/' .env
     - podman-compose -f podman-compose.yml stop webapp
     - podman rm dora-webapp
-    - podman-compose -f podman-compose.yml build webapp
+    - podman-compose -f podman-compose.yml build ${use_podman_cache}webapp
     - podman-compose -f podman-compose.yml up -d
     - sleep 3
     - podman ps -a
