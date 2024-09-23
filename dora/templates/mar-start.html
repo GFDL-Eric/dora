@@ -59,6 +59,17 @@
             <div class="card-body">
                 <!--<img halign="right" width="50%" height="50%" src="/static/assets/img/beaker.png">-->
                 <p>Experiment: {{experiment.expName}}</p>
+
+		{% if preexist %}
+                <p>
+		<a href=/mar-results/{{experiment.id}}>
+	          <button type="button" class="btn btn-block btn-primary btn-xs">
+		      View cached analysis for this experiment
+		  </button>
+		</a>
+		</p>
+		{% endif %}
+
                 <form method="/mar/analysis" method="GET">
                     <div class="form-group">
                         {% for diag in avail_diags %}

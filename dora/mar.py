@@ -137,12 +137,18 @@ def mar_execute():
             mar_nb_root = "/mar"
         avail_diags = glob.glob(f"{mar_nb_root}/**/*.ipynb", recursive=True)
 
+        # Determine if precalculated results already exist
+        preexist = os.path.exists(f"/nbhome/John.Krasting/mar-results/{experiment.id}")
+
+        print("Results exist? ", preexist)
+
         return render_template(
             "mar-start.html",
             avail_diags=avail_diags,
             idnum=idnum,
             experiment=experiment,
             year_range=year_range,
+            preexist=preexist,
         )
 
     startyr = str(request.args.get("startyr"))

@@ -42,3 +42,19 @@ def view_mdtf(project_id, filename):
         return render_template("page-404.html"), 404
     else:
         return send_from_directory(path, filename)
+
+@dora.route("/mar-results/<project_id>")
+def view_mar_root(project_id):
+    return redirect(f"/mar-results/{project_id}/index.html", 302)
+
+
+@dora.route("/mar-results/<project_id>/<path:filename>")
+def view_mar(project_id, filename):
+    exper = Experiment(project_id)
+    path = f"/nbhome/John.Krasting/mar-results/{exper.id}/"
+    path = path.replace("//", "/")
+    print(path)
+    if not os.path.exists(path + filename):
+        return render_template("page-404.html"), 404
+    else:
+        return send_from_directory(path, filename)
