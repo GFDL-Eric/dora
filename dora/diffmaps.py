@@ -24,6 +24,8 @@ from .frepptools import list_components, Componentgroup, compare_compgroups
 
 import matplotlib.pyplot as plt
 
+import momgrid as mg
+
 
 def base64it(imgbuf):
     """Converts in-memory PNG image to inlined ASCII format
@@ -263,80 +265,149 @@ def diffmaps_start():
     )
 
     zlev = request.args.get("zlev")
-    if zlev is not None:
-        zlev = float(zlev)
-        ds1 = ds1.sel({get_vertical_coord(ds1)[0]: zlev}, method="nearest")
-        ds2 = ds2.sel({get_vertical_coord(ds2)[0]: zlev}, method="nearest")
 
-    results = xcompare.compare_datasets(ds1, ds2, varlist=variable, timeavg=True)
+    if zlev is None:
+        difftype = "yx"
+    else:
+        if zlev == "yz":
+            difftype = "yz"
+        else:
+            difftype = "yx"
 
-    # get requested projection
-    projection = request.args.get("projection")
-    projection = ccrs.__dict__[projection]()
+    if difftype == "yz":
+        os.environ["MOMGRID_WEIGHTS_DIR"] = "/nbhome/John.Krasting/grid_weights"
+        flist1 = groups[0].reconstitute_files()
+        try:
+            gs1 = mg.Gridset(flist1)
+        except:
+            gs1 = mg.Gridset(flist1, ignore=["geolat_c", "geolon_c", "areacello"])
+        flist2 = groups[1].reconstitute_files()
+        try:
+            gs2 = mg.Gridset(flist2)
+        except:
+            gs2 = mg.Gridset(flist2, ignore=["geolat_c", "geolon_c", "areacello"])
 
-    # get geographic bounds
-    lon_range = (request.args.get("lon0"), request.args.get("lon1"))
-    lat_range = (request.args.get("lat0"), request.args.get("lat1"))
+        ds1 = gs1
+        ds2 = gs2
 
-    lon_range = tuple(
-        None if ((x == "") or (x is None)) else float(x) for x in lon_range
-    )
-    lat_range = tuple(
-        None if ((x == "") or (x is None)) else float(x) for x in lat_range
-    )
+        # If an xy plot is requested, extract the desired depth level
 
-    lat_range = (
-        None if None in lat_range else (float(lat_range[0]), float(lat_range[1]))
-    )
-    lon_range = (
-        None if None in lon_range else (float(lon_range[0]), float(lon_range[1]))
-    )
+        tdim = "time"
+        if tdim in ds1.data.dims:
+            ds1.data = ds1.data.mean(tdim, keep_attrs=True)
 
-    coastlines = True if request.args.get("coastlines") == "1" else False
-    print(coastlines)
+        if tdim in ds2.data.dims:
+            ds2.data = ds2.data.mean(tdim, keep_attrs=True)
 
-    cmap = request.args.get("cmap")
+        resolution = 1.0
+        # Check if grids are identical and regrid if necessary
+        if ds1.model == ds2.model:
+            ds1 = ds1.data
+            ds2 = ds2.data
+        else:
+            ds1 = ds1.regrid(resolution=resolution)
+            ds2 = ds2.regrid(resolution=resolution)
 
-    sigma = 1.5 if request.args.get("sigma") == "" else float(request.args.get("sigma"))
-    vmin = None if request.args.get("vmin") == "" else float(request.args.get("vmin"))
-    vmax = None if request.args.get("vmax") == "" else float(request.args.get("vmax"))
-    diffvmin = (
-        None
-        if request.args.get("diffvmin") == ""
-        else float(request.args.get("diffvmin"))
-    )
-    diffvmax = (
-        None
-        if request.args.get("diffvmax") == ""
-        else float(request.args.get("diffvmax"))
-    )
+        region = None
+        ds1 = mg.util.x_average_dataset(ds1, region=region)
+        ds2 = mg.util.x_average_dataset(ds2, region=region)
 
-    figs = [
-        (
-            x,
-            xcompare.plot_three_panel(
-                results,
-                x,
-                projection=projection,
-                labels=[experiments[0].expName, experiments[1].expName],
-                cmap=cmap,
-                vmin=vmin,
-                vmax=vmax,
-                diffvmin=diffvmin,
-                diffvmax=diffvmax,
-                lat_range=lat_range,
-                lon_range=lon_range,
-                coastlines=coastlines,
-                sigma=sigma,
-            ),
+        figs = []
+        for var in variable:
+            fig = mg.plot.compare_2d(
+                ds1[var],
+                ds2[var],
+                dpi=90,
+                plot_type="yz",
+                topright_label="Global",
+                label1=experiments[0].expName,
+                label2=experiments[1].expName,
+            )
+            figs.append((var, fig))
+
+        html_text = ""
+
+    else:
+
+        if zlev is not None:
+            ds1 = ds1.sel({get_vertical_coord(ds1)[0]: zlev}, method="nearest")
+            ds2 = ds2.sel({get_vertical_coord(ds2)[0]: zlev}, method="nearest")
+
+        results = xcompare.compare_datasets(ds1, ds2, varlist=variable, timeavg=True)
+
+        # get requested projection
+        projection = request.args.get("projection")
+        projection = ccrs.__dict__[projection]()
+
+        # get geographic bounds
+        lon_range = (request.args.get("lon0"), request.args.get("lon1"))
+        lat_range = (request.args.get("lat0"), request.args.get("lat1"))
+
+        lon_range = tuple(
+            None if ((x == "") or (x is None)) else float(x) for x in lon_range
         )
-        for x in variable
-    ]
+        lat_range = tuple(
+            None if ((x == "") or (x is None)) else float(x) for x in lat_range
+        )
+
+        lat_range = (
+            None if None in lat_range else (float(lat_range[0]), float(lat_range[1]))
+        )
+        lon_range = (
+            None if None in lon_range else (float(lon_range[0]), float(lon_range[1]))
+        )
+
+        coastlines = True if request.args.get("coastlines") == "1" else False
+
+        cmap = request.args.get("cmap")
+
+        sigma = (
+            1.5 if request.args.get("sigma") == "" else float(request.args.get("sigma"))
+        )
+        vmin = (
+            None if request.args.get("vmin") == "" else float(request.args.get("vmin"))
+        )
+        vmax = (
+            None if request.args.get("vmax") == "" else float(request.args.get("vmax"))
+        )
+        diffvmin = (
+            None
+            if request.args.get("diffvmin") == ""
+            else float(request.args.get("diffvmin"))
+        )
+        diffvmax = (
+            None
+            if request.args.get("diffvmax") == ""
+            else float(request.args.get("diffvmax"))
+        )
+
+        figs = [
+            (
+                x,
+                xcompare.plot_three_panel(
+                    results,
+                    x,
+                    projection=projection,
+                    labels=[experiments[0].expName, experiments[1].expName],
+                    cmap=cmap,
+                    vmin=vmin,
+                    vmax=vmax,
+                    diffvmin=diffvmin,
+                    diffvmax=diffvmax,
+                    lat_range=lat_range,
+                    lon_range=lon_range,
+                    coastlines=coastlines,
+                    sigma=sigma,
+                ),
+            )
+            for x in variable
+        ]
+
+        xr.set_options(display_style="html")
+        html_text = results["diff"]._repr_html_()
+
     figs = [(x[0], io_save(x[1])) for x in figs]
     figs = [(x[0], base64it(x[1])) for x in figs]
-
-    xr.set_options(display_style="html")
-    html_text = results["diff"]._repr_html_()
 
     return render_template(
         "diffmaps-results.html", ds1=ds1, html_text=html_text, figs=figs
