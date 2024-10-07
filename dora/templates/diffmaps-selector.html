@@ -153,6 +153,7 @@
                 <label>Some of these variables include a vertical dimension. Select a level to plot</label>
         <div class="col-md-3">
                 <select class="form-control" id="component" name="zlev">
+                    <option value="yz">Zonal Mean (yz)</option>
                     {% for lev in zdim[1] %}
                     <option value="{{lev}}">{{zdim[0]}} = {{lev}}</option>
                     {% endfor %}
