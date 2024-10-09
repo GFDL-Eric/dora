@@ -54,7 +54,7 @@
             The following files are needed to perform this analysis. To speed up the the analysis,
             or in the event of a server timeout, consider recalling these files first from tape:
 
-            <pre style="white-space: pre-wrap;"><p id="dmget">dmget {{infiles|join(" ")}}</p></pre>
+	    <br><p id="dmget">dmget {% for item in infiles %}{{ item }}{% endfor %}</p>
 
             <table>
               <tr>
