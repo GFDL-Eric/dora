@@ -21,6 +21,7 @@ reset_dora:
   stage: run
   script:
     - cd /home/podman/dora
+    - git checkout -- .env
     - git fetch origin
     - git checkout $CI_COMMIT_BRANCH
     - git pull origin $CI_COMMIT_BRANCH
