@@ -35,7 +35,7 @@ def view_mdtf_root(project_id):
 @dora.route("/mdtf/<project_id>/<path:filename>")
 def view_mdtf(project_id, filename):
     exper = Experiment(project_id)
-    path = f"{exper.pathAnalysis}/mdtf/"
+    path = f"{exper.pathAnalysis}/mdtf/MDTF_output/"
     path = path.replace("//", "/")
     print(path)
     if not os.path.exists(path + filename):
