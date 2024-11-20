@@ -36,7 +36,7 @@ def fetch_project_info(project_name, auth=True):
     cursor = db.cursor()
 
     # define "always visible" projects regardless of the user
-    auth_proj = ["mdt", "cmip6", "postmdt", "am5dt", "esm45", "cm5"]
+    auth_proj = ["mdt", "cmip6", "cmip7", "postmdt", "am5dt", "esm45", "cm5"]
 
     # determine what projects the user is permitted to view
     if current_user.is_authenticated:

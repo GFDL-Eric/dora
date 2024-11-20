@@ -26,6 +26,7 @@ model_types = sorted(
         "LM4",
         "OM4p125",
         "CMIP6-ESM4",
+        "CMIP7-Forcing",
         "C4MIP-ESM4",
     ]
 )
