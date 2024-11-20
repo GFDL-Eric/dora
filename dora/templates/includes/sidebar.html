@@ -57,6 +57,15 @@
           </li>
 
           <li class="nav-item">
+      	    <a href="/projects/cmip7" class="nav-link">
+			        <i class="nav-icon fas fa-globe-americas"></i>
+			        <p>
+				        CMIP7 Experiments
+			        </p>
+		        </a>
+	        </li>
+
+          <li class="nav-item">
             <a href="/projects/postmdt" class="nav-link">
               <i class="nav-icon fas fa-clock"></i>
               <p>
@@ -107,7 +116,7 @@
             <ul class="nav nav-treeview">
               {% for project in projects %}
               {% if project[1] is in current_user.perm_view %}
-              {% if project[1] is not in ["mdt", "cmip6", "postmdt", "am5dt", "esm45", "cm5"] %}
+              {% if project[1] is not in ["mdt", "cmip6", "cmip7", "postmdt", "am5dt", "esm45", "cm5"] %}
               <li class="nav-item">
                 <a href="/projects/{{project[1]}}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
