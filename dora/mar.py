@@ -150,8 +150,6 @@ def mar_execute():
         # Determine if precalculated results already exist
         preexist = os.path.exists(f"/nbhome/John.Krasting/mar-results/{experiment.id}")
 
-        print("Results exist? ", preexist)
-
         return render_template(
             "mar-start.html",
             avail_diags=avail_diags,
