@@ -12,12 +12,13 @@ from OpenSSL import SSL
 
 HOST = "0.0.0.0"
 PORT = 5050
+DEVPORT = 9090
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "dev":
             load_dotenv(".devenv")
-            dora.run(host=HOST, port=PORT, debug=True, ssl_context="adhoc")
+            dora.run(host=HOST, port=DEVPORT, debug=True, ssl_context="adhoc")
         elif sys.argv[1] == "nossl":
             load_dotenv(".devenv")
             dora.run(host=HOST, port=PORT, debug=True)
