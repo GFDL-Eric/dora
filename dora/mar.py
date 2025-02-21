@@ -1,4 +1,4 @@
-""" mar.py : module to execute jupyter notebooks """
+"""mar.py : module to execute jupyter notebooks"""
 
 import base64
 import datetime
@@ -113,15 +113,25 @@ def mar_execute():
     if idnum is None:
         return render_template("mar-splash.html")
 
+    # Multiple experiments may be specified by separating with a
+    # comma. Break them apart at this step
+    idnums = str(idnum).split(",")
+
     # Fetch an Experiment object that houses all of the
     # experiment metadata
-    experiment = Experiment(idnum)
+    experiments = [Experiment(x) for x in idnums]
 
     # Make sure the experiment is valid
-    if experiment.validate_path("pathPP") is False:
-        return render_template(
-            "page-500.html", msg=f"Unable to reach {experiment.pathPP}."
-        )
+    for n, experiment in enumerate(experiments):
+        if len(experiment.to_dict()) == 0:
+            return render_template(
+                "page-500.html",
+                msg=f"Experiment does not exist in database: {idnums[n]}",
+            )
+        if experiment.validate_path("pathPP") is False:
+            return render_template(
+                "page-500.html", msg=f"Unable to reach {experiment.pathPP}."
+            )
 
     # Get the requested analysis from the URL or provide user with
     # a menu of available diagnostics in MAR
@@ -169,8 +179,12 @@ def mar_execute():
 
     # User-specified notebook for testing purposes
     if notebook_filename == "custom":
-        assert current_user.is_authenticated, "You must be logged in to run custom notebooks."
-        assert current_user.admin, "Administrator privileges are required to run custom notebooks."
+        assert (
+            current_user.is_authenticated
+        ), "You must be logged in to run custom notebooks."
+        assert (
+            current_user.admin
+        ), "Administrator privileges are required to run custom notebooks."
         notebook_filename = request.args.get("customPath")
 
     with open(notebook_filename, "r", encoding="utf-8") as f:
