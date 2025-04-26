@@ -60,7 +60,7 @@
                 <!--<img halign="right" width="50%" height="50%" src="/static/assets/img/beaker.png">-->
                 <p>Experiment: {{experiment.expName}}</p>
 
-		{% if preexist %}
+		{% if preexist is not none %}
                 <p>
 		<a href=/mar-results/{{experiment.id}}>
 	          <button type="button" class="btn btn-block btn-primary btn-xs">

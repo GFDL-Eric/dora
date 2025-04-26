@@ -50,10 +50,16 @@ def view_mar_root(project_id):
 
 @dora.route("/mar-results/<project_id>/<path:filename>")
 def view_mar(project_id, filename):
-    exper = Experiment(project_id)
-    path = f"/nbhome/John.Krasting/mar-results/{exper.id}/"
-    path = path.replace("//", "/")
-    print(path)
+    experiment = Experiment(project_id)
+
+    # Determine if precalculated results already exist
+    preexist = None
+    respath = f"/nbhome/John.Krasting/mar-results/{experiment.id}/"
+    preexist = respath if os.path.exists(respath) else preexist
+    respath = f"/nbhome/{experiment.userName}/mar-results/{experiment.id}/"
+    preexist = respath if os.path.exists(respath) else preexist
+
+    path = preexist.replace("//", "/")
     if not os.path.exists(path + filename):
         return render_template("page-404.html"), 404
     else:
