@@ -2,7 +2,7 @@ from dora import dora
 
 from flask import render_template
 from flask import request
-from flask import Response
+from flask import Response, send_file
 from flask_login import current_user
 
 from .Experiment import Experiment
@@ -13,6 +13,8 @@ from .user import Token, User
 import datetime
 
 import gfdlvitals
+import os
+import gzip
 
 import io
 
@@ -54,6 +56,37 @@ def add():
         result = "Error: " + str(exc)
 
     return result
+
+
+@dora.route("/api/catalog")
+def serve_catalog():
+    # Get the 'id' from the request query parameters
+    idnum = request.args.get("id")
+    if not idnum:
+        return Response("Missing 'id' parameter.", status=400)
+    
+    experiment = Experiment(idnum).to_dict()
+    if len(experiment) == 0:
+        return Response("Metadata is missing for this experiment.", status=400)
+    
+    idnum = experiment["id"]
+    file_path = f"/nbhome/jpk/dora-cache/catalogs/{idnum}.csv.gz"
+    
+    if not os.path.exists(file_path):
+        return Response("Catalog file not found.", status=404)
+    
+    # Check the query parameter for compressed flag
+    serve_compressed = request.args.get("compressed", "false").lower() == "true"
+    
+    if serve_compressed:
+        # Serve the compressed file directly
+        return send_file(file_path, mimetype='application/gzip') #, as_attachment=True, download_name=f"{idnum}.csv.gz")
+    
+    # Serve the decompressed file as plain text
+    with gzip.open(file_path, 'rt', encoding='utf-8') as f:
+        content = f.read()
+    
+    return Response(content, mimetype='text/plain')
 
 
 @dora.route("/api/info")

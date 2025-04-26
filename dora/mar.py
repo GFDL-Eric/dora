@@ -148,7 +148,12 @@ def mar_execute():
         avail_diags = glob.glob(f"{mar_nb_root}/**/*.ipynb", recursive=True)
 
         # Determine if precalculated results already exist
-        preexist = os.path.exists(f"/nbhome/John.Krasting/mar-results/{experiment.id}")
+        preexist = None
+        respath = f"/nbhome/John.Krasting/mar-results/{experiment.id}"
+        preexist = respath if os.path.exists(respath) else preexist
+        respath = f"/nbhome/{experiment.userName}/mar-results/{experiment.id}"
+        preexist = respath if os.path.exists(respath) else preexist
+
 
         return render_template(
             "mar-start.html",

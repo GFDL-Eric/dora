@@ -189,6 +189,17 @@ def show_user():
         "profile.html", numexp=numexp, tables=["aaa"], experiments=result
     )
 
+@dora.route("/maxid")
+def return_maxid():
+    db = get_db()
+    cursor = db.cursor()
+    
+    sql = f"SELECT MAX(id) AS maxid FROM master"
+    cursor.execute(sql)
+    maxid = cursor.fetchone()
+
+    return Response(str(maxid["maxid"]), mimetype="text/plain")
+
 
 @dora.route("/backup")
 def dump_database():
