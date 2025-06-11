@@ -17,7 +17,7 @@ import gfdlvitals
 import os
 import gzip
 import json
-
+import pandas as pd
 import io
 
 @dora.route("/api/intake/<dora_id>.json")
@@ -43,9 +43,25 @@ def send_intake_catalog(dora_id):
     if len(experiment) == 0:
         return Response("Metadata is missing for this experiment.", status=400)
     idnum = experiment["id"]
+
     file_path = f"/nbhome/jpk/dora-cache/catalogs/{idnum}.csv.gz"
     if not os.path.exists(file_path):
         return Response("Catalog file not found.", status=404)
+
+    output_buffer = io.BytesIO()
+    df = pd.read_csv(file_path, compression="gzip")
+    for col in df.columns:
+        df[col] = df[col].fillna("unknown")
+    with gzip.GzipFile(fileobj=output_buffer, mode="w") as gz:
+        df.to_csv(gz, index=False)
+    output_buffer.seek(0)
+    return Response(
+        output_buffer.read(),
+        mimetype="application/gzip",
+        headers={
+            "Content-Disposition": f"attachment; filename={dora_id}.csv.gz"
+        }
+    )
     return send_file(file_path, mimetype='application/gzip')
     
 
