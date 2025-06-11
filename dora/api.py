@@ -4,6 +4,7 @@ from flask import render_template
 from flask import request
 from flask import Response, send_file
 from flask_login import current_user
+from flask import jsonify
 
 from .Experiment import Experiment
 from .db import get_db
@@ -15,9 +16,26 @@ import datetime
 import gfdlvitals
 import os
 import gzip
+import json
 
 import io
 
+@dora.route("/api/intake/<dora_id>.json")
+def view_intake_catalog(dora_id):
+    experiment = Experiment(dora_id).to_dict()
+    if len(experiment.keys()) == 0:
+        return Response("Metadata is missing for this experiment.", status=400)
+    idnum = experiment["id"]
+    expname = experiment["expName"]
+    default_json ="dora/default_intake.json"
+    with open(default_json, "r") as f:
+            result = json.load(f)
+    result["id"] = expname
+    result["title"] = expname
+    result["description"] = expname
+    result["last_updated"] = datetime.datetime.now().isoformat()
+    result["catalog_file"] = f"https://dora.gfdl.noaa.gov/api/catalog?id={idnum}"
+    return jsonify(result)
 
 @dora.route("/api/add")
 def add():
