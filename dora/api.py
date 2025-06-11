@@ -4,6 +4,7 @@ from flask import render_template
 from flask import request
 from flask import Response, send_file
 from flask_login import current_user
+from flask import jsonify
 
 from .Experiment import Experiment
 from .db import get_db
@@ -15,9 +16,54 @@ import datetime
 import gfdlvitals
 import os
 import gzip
-
+import json
+import pandas as pd
 import io
 
+@dora.route("/api/intake/<dora_id>.json")
+def view_intake_catalog(dora_id):
+    experiment = Experiment(dora_id).to_dict()
+    if len(experiment.keys()) == 0:
+        return Response("Metadata is missing for this experiment.", status=400)
+    idnum = experiment["id"]
+    expname = experiment["expName"]
+    default_json ="dora/default_intake.json"
+    with open(default_json, "r") as f:
+            result = json.load(f)
+    result["id"] = expname
+    result["title"] = expname
+    result["description"] = expname
+    result["last_updated"] = datetime.datetime.now().isoformat()
+    result["catalog_file"] = f"https://dora.gfdl.noaa.gov/api/intake/catalog/{idnum}.csv.gz"
+    return jsonify(result)
+
+@dora.route("/api/intake/catalog/<dora_id>.csv.gz")
+def send_intake_catalog(dora_id):
+    experiment = Experiment(dora_id).to_dict()
+    if len(experiment) == 0:
+        return Response("Metadata is missing for this experiment.", status=400)
+    idnum = experiment["id"]
+
+    file_path = f"/nbhome/jpk/dora-cache/catalogs/{idnum}.csv.gz"
+    if not os.path.exists(file_path):
+        return Response("Catalog file not found.", status=404)
+
+    output_buffer = io.BytesIO()
+    df = pd.read_csv(file_path, compression="gzip")
+    for col in df.columns:
+        df[col] = df[col].fillna("unknown")
+    with gzip.GzipFile(fileobj=output_buffer, mode="w") as gz:
+        df.to_csv(gz, index=False)
+    output_buffer.seek(0)
+    return Response(
+        output_buffer.read(),
+        mimetype="application/gzip",
+        headers={
+            "Content-Disposition": f"attachment; filename={dora_id}.csv.gz"
+        }
+    )
+    return send_file(file_path, mimetype='application/gzip')
+    
 
 @dora.route("/api/add")
 def add():
