@@ -131,11 +131,16 @@ def scalardiags():
         else:
             return in_path
 
-    dbfilename = f"{region}Ave{realm}.db"
+    if realm == "performance":
+        dbfilename = "performance.db"
+    else:
+        dbfilename = f"{region}Ave{realm}.db"
+
     filepaths = [
         (idx, x.pathDB, obgc_hack(f"{x.pathDB}{dbfilename}").replace(x.pathDB, ""))
         for idx, x in zip(idnum, exper)
     ]
+
     dset = [gfdlvitals.open_db(f"{x[1]}{x[2]}") for x in filepaths]
     dset = [x.build_netrad_toa() for x in dset]
     labels = [format_label(x) for x in exper]
