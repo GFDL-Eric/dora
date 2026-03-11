@@ -4,6 +4,7 @@ import glob
 import os
 import pymysql
 import sys
+from pathlib import Path
 
 try:
     from db import get_db, close_db
@@ -128,6 +129,8 @@ class Experiment:
                 self.__dict__ = {**self.__dict__, **result}
             else:
                 self.__dict__ = {}
+    
+        self.db_path_fallback()
 
         # else:
         #    raise ValueError(
@@ -234,6 +237,12 @@ class Experiment:
     def validate_path(self, key):
         result = "" if key not in self.__dict__ else self.__dict__[key]
         return os.path.exists(result)
+
+    def db_path_fallback(self):
+        if not os.path.exists(self.pathDB):
+            path_parts = list(Path(self.pathDB).parts)
+            path_parts.insert(3,".dora")
+            self.pathDB = str(Path(*path_parts))
 
     def to_dict(self):
         return self.__dict__
