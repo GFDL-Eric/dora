@@ -242,7 +242,7 @@ class Experiment:
         if not os.path.exists(self.pathDB):
             path_parts = list(Path(self.pathDB).parts)
             path_parts.insert(3,".dora")
-            self.pathDB = str(Path(*path_parts))
+            self.pathDB = str(Path(*path_parts)) + "/"
 
     def to_dict(self):
         return self.__dict__
