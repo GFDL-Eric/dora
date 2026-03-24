@@ -243,13 +243,17 @@ class Experiment:
         if not os.path.exists(self.pathDB):
             path_parts = list(Path(self.pathDB).parts)
             path_parts.insert(3,".dora")
-            self.pathDB = str(Path(*path_parts)) + "/"
+            new_path = str(Path(*path_parts)) + "/"
+            if os.path.exists(new_path):
+                self.pathDB = new_path
 
     def pp_path_fallback(self):
         if not os.path.exists(self.pathPP):
             path_parts = list(Path(self.pathPP).parts)
             path_parts.insert(3,"experiments")
-            self.pathPP = str(Path(*path_parts)) + "/"
+            new_path = str(Path(*path_parts)) + "/"
+            if os.path.exists(new_path):
+                self.pathPP = new_path
 
     def to_dict(self):
         return self.__dict__
