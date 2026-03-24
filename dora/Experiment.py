@@ -131,6 +131,7 @@ class Experiment:
                 self.__dict__ = {}
     
         self.db_path_fallback()
+        self.pp_path_fallback()
 
         # else:
         #    raise ValueError(
@@ -243,6 +244,12 @@ class Experiment:
             path_parts = list(Path(self.pathDB).parts)
             path_parts.insert(3,".dora")
             self.pathDB = str(Path(*path_parts)) + "/"
+
+    def pp_path_fallback(self):
+        if not os.path.exists(self.pathPP):
+            path_parts = list(Path(self.pathPP).parts)
+            path_parts.insert(3,"experiments")
+            self.pathPP = str(Path(*path_parts)) + "/"
 
     def to_dict(self):
         return self.__dict__
