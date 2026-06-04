@@ -1,0 +1,18 @@
+/* Daily "no backup" acknowledgement banner.
+   Pins the native AdminLTE .alert-warning to the bottom of the viewport. */
+#dora-ack-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1040;
+  margin: 0;
+  border-radius: 0;
+  /* leave room on the right so the floated button never overlaps the text */
+  padding-right: 1.25rem;
+}
+
+#dora-ack-banner #dora-ack-btn {
+  margin-top: -0.15rem;
+  margin-left: 1rem;
+}
