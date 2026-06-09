@@ -16,8 +16,8 @@ reset_dora:
         secret_google: ${google_secret_env_ci}
     - if: '$dora_system == "dora" && $CI_PIPELINE_SOURCE == "web"'
       variables:
-        id_google: ${google_id_env_dora}
-        secret_google: ${google_secret_env_dora}
+        id_google: ${google_id_env_ci}
+        secret_google: ${google_secret_env_ci}
   stage: run
   script:
     - cd /home/podman/dora
