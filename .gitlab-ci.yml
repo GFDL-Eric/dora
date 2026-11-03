@@ -27,8 +27,8 @@ reset_dora:
     - git pull origin $CI_COMMIT_BRANCH
     - sed -i 's/google_id_env_ci/'${id_google}'/' .env
     - sed -i 's/google_secret_env_ci/'${secret_google}'/' .env
-    - podman-compose -f podman-compose.yml stop webapp
-    - podman rm dora-webapp
+      #    - podman-compose -f podman-compose.yml stop webapp
+      #    - podman rm dora-webapp
     - podman-compose -f podman-compose.yml build ${use_podman_cache}webapp
     - podman-compose -f podman-compose.yml up -d
     - sleep 3
