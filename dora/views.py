@@ -229,6 +229,8 @@ def dump_gfdlvitals_nc():
 
     db = gfdlvitals.open_db(filestub)
     ds = xr.Dataset.from_dataframe(db)
+    if 'time' in ds.data_vars:
+        del ds['time']
     ds = ds.rename({'index': 'time'})
     ds = set_encoding(ds, "data_vars")
     ds = set_encoding(ds, "coords")
